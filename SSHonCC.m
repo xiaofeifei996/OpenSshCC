@@ -66,14 +66,20 @@ bhLog(NSString *format, ...){
 	char * usr = "usr";
 	char * bin = "bin";
 	char * ssw = "SSHswitch";
-	_p_sshswitch = [NSString stringWithFormat:@"/%s/%s/%s", usr, bin, ssw]; // rooted
-	if ( stat([_p_sshswitch UTF8String], &ftest) != 0 ){
-		_p_sshswitch = [NSString stringWithFormat:@"/var/jb%@", _p_sshswitch]; // simple /var/jb
-		if ( stat([_p_sshswitch UTF8String], &ftest) != 0 ){
-			NSString * envJbRoot = [[[NSProcessInfo processInfo] environment] objectForKey:@"JB_ROOT_PATH"];
-			if ( envJbRoot ){
-				_p_sshswitch = [NSString stringWithFormat:@"%@/%s/%s/%s", envJbRoot, usr, bin, ssw];
-			} // else now we're f*d, this isn't going to work
+	// /var/jb first: that's where RootHide exposes rootless packages to app
+	// processes. The roothide scheme's hidden root is invisible from here, so
+	// a copy sitting in /usr/bin only makes the toggle fail silently.
+	_p_sshswitch = [NSString stringWithFormat:@"/%s/%s/%s", usr, bin, ssw]; // may be nil later
+	NSString * envJbRoot = [[[NSProcessInfo processInfo] environment] objectForKey:@"JB_ROOT_PATH"];
+	NSMutableArray * cands = [NSMutableArray array];
+	if ( envJbRoot.length )
+		[cands addObject:[NSString stringWithFormat:@"%@/%s/%s/%s", envJbRoot, usr, bin, ssw]];
+	[cands addObject:[NSString stringWithFormat:@"/var/jb/%s/%s/%s", usr, bin, ssw]];
+	[cands addObject:[NSString stringWithFormat:@"/%s/%s/%s", usr, bin, ssw]]; // rootful
+	for ( NSString * cand in cands ){
+		if ( stat([cand UTF8String], &ftest) == 0 ){
+			_p_sshswitch = cand;
+			break;
 		}
 	}
 
