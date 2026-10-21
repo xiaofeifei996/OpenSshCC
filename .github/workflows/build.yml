@@ -70,7 +70,7 @@ jobs:
           dpkg-deb -x "$deb" "$tmpd"
           echo "== layout must be rootless (/var/jb) =="
           dpkg-deb -c "$deb" | grep -q 'var/jb/Library/ControlCenter/Bundles/SSHonCC.bundle'
-          bin=$(find "$tmpd" -name 'SSHonCC' -type f | head -1)
+          bin=$(find "$tmpd/var/jb" -name 'SSHonCC' -type f | head -1)
           test -n "$bin"
           lipo -info "$bin"
           otool -L "$bin" | head -20
