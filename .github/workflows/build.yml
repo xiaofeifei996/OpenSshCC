@@ -54,7 +54,7 @@ jobs:
           set -euo pipefail
           chmod +x layout/DEBIAN/postinst layout/DEBIAN/postrm
           make clean
-          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=roothide 2>&1 | tee build.log
+          make package FINALPACKAGE=1 THEOS_PACKAGE_SCHEME=rootless 2>&1 | tee build.log
           test -n "$(ls packages/*.deb 2>/dev/null)" || { echo "::error::no deb produced"; exit 1; }
           shasum -a 256 packages/*.deb | tee SHA256SUMS
 
@@ -68,6 +68,8 @@ jobs:
           dpkg-deb -c "$deb"
           tmpd=$(mktemp -d)
           dpkg-deb -x "$deb" "$tmpd"
+          echo "== layout must be rootless (/var/jb) =="
+          dpkg-deb -c "$deb" | grep -q 'var/jb/Library/ControlCenter/Bundles/SSHonCC.bundle'
           bin=$(find "$tmpd" -name 'SSHonCC' -type f | head -1)
           test -n "$bin"
           lipo -info "$bin"
