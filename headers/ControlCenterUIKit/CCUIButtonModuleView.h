@@ -29,7 +29,7 @@
 */
 
 //#import <ControlCenterUIKit/ControlCenterUIKit-Structs.h>
-#import <UIKit/UIControl.h> // 11 // ?? 12,13 ??
+#import <UIKit/UIKit.h> // 11 // ?? 12,13 ?? (full UIKit: newer SDKs need UIGestureRecognizer's module first)
 //#import <UIKitCore/UIControl.h> // 12,13
 //#import <UIKit/UIGestureRecognizerDelegate.h>
 
