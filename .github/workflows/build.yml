@@ -69,7 +69,8 @@ jobs:
           tmpd=$(mktemp -d)
           dpkg-deb -x "$deb" "$tmpd"
           echo "== layout must be rootless (/var/jb) =="
-          dpkg-deb -c "$deb" | grep -q 'var/jb/Library/ControlCenter/Bundles/SSHonCC.bundle'
+          dpkg-deb -c "$deb" > /tmp/deb-list.txt
+          grep -q 'var/jb/Library/ControlCenter/Bundles/SSHonCC.bundle' /tmp/deb-list.txt
           bin=$(find "$tmpd/var/jb" -name 'SSHonCC' -type f | head -1)
           test -n "$bin"
           lipo -info "$bin"
